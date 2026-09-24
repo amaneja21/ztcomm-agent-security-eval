@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+certs/*.pem
+certs/*.key
+certs/policy_binder.key
+evaluation/logs/*.jsonl
+architecture-diagram.html
