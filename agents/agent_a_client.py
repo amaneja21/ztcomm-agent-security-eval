@@ -17,11 +17,11 @@ from ztcomm.protocol import send_json, recv_json
 CERT_DIR = Path(__file__).parent.parent / "certs"
 
 
-def build_client_context() -> ssl.SSLContext:
+def build_client_context(cert_name: str = "agent_a") -> ssl.SSLContext:
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     context.load_cert_chain(
-        certfile=CERT_DIR / "agent_a_cert.pem",
-        keyfile=CERT_DIR / "agent_a_key.pem",
+        certfile=CERT_DIR / f"{cert_name}_cert.pem",
+        keyfile=CERT_DIR / f"{cert_name}_key.pem",
     )
     context.load_verify_locations(cafile=CERT_DIR / "ca_cert.pem")
     context.check_hostname = True
@@ -33,24 +33,33 @@ def run_session(
     messages: list[dict],
     host="localhost",
     port=8443,
+    cert_name: str = "agent_a",
+    verbose: bool = True,
 ):
     """
     context_decl: the {"data_type", "operation"} declared at session
     open. messages: a list of message bodies (each merged with
     type="data" and session_id) sent in order after the session opens.
-    Returns the list of server responses received, in order.
+    cert_name: which identity in certs/ to connect as, so the same
+    function can drive one smoke-test agent or any of the 100 identities
+    used in the step 5 scale test. Returns the list of server responses
+    received, in order.
     """
-    tls_context = build_client_context()
+    def log(msg):
+        if verbose:
+            print(msg)
+
+    tls_context = build_client_context(cert_name)
     responses = []
     with socket.create_connection((host, port)) as sock:
         with tls_context.wrap_socket(sock, server_hostname="localhost") as tls_sock:
             peer_cn = dict(x[0] for x in tls_sock.getpeercert()["subject"])["commonName"]
-            print(f"[agent_a] mTLS handshake OK, peer CN={peer_cn}")
+            log(f"[{cert_name}] mTLS handshake OK, peer CN={peer_cn}")
 
             buf = bytearray()
             send_json(tls_sock, {"type": "session_open", "context": context_decl})
             ack = recv_json(tls_sock, buf)
-            print(f"[agent_a] session opened: {ack}")
+            log(f"[{cert_name}] session opened: {ack}")
             responses.append(ack)
             if ack is None:
                 return responses
@@ -63,14 +72,14 @@ def run_session(
                 msg = {"type": "data", **carry, **m}
                 send_json(tls_sock, msg)
                 resp = recv_json(tls_sock, buf)
-                print(f"[agent_a] sent {m} -> {resp}")
+                log(f"[{cert_name}] sent {m} -> {resp}")
                 responses.append(resp)
                 if resp is None or resp.get("type") == "violation":
                     return responses  # server will close on violation
 
             send_json(tls_sock, {"type": "session_close"})
             final = recv_json(tls_sock, buf)
-            print(f"[agent_a] session closed: {final}")
+            log(f"[{cert_name}] session closed: {final}")
             responses.append(final)
     return responses
 

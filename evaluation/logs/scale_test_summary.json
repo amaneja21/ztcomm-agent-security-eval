@@ -1,0 +1,21 @@
+{
+  "num_agents": 100,
+  "domains": [
+    "finance",
+    "ops",
+    "hr"
+  ],
+  "successes": 100,
+  "failures": 0,
+  "failure_detail": [],
+  "wall_clock_seconds": 0.488,
+  "latency_ms": {
+    "min": 64.39,
+    "median": 148.03,
+    "p95": 217.18,
+    "max": 252.24
+  },
+  "audit_log_entries_written": 300,
+  "audit_chain_verified": true,
+  "audit_chain_message": "ok"
+}
