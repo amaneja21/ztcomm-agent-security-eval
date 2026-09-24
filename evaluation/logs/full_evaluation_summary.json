@@ -1,0 +1,159 @@
+{
+  "trials_per_condition": 20,
+  "identity_used": "agent_a",
+  "results": {
+    "ZT-COMM": {
+      "legitimate_sessions": {
+        "trials": 20,
+        "succeeded": 20,
+        "false_positive_rate": 0.0
+      },
+      "mitm_no_cert": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      },
+      "cert_spoofing": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      },
+      "context_manipulation": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      },
+      "mid_session_hijack": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      },
+      "token_replay": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      }
+    },
+    "mTLS only": {
+      "legitimate_sessions": {
+        "trials": 20,
+        "succeeded": 20,
+        "false_positive_rate": 0.0
+      },
+      "mitm_no_cert": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      },
+      "cert_spoofing": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      },
+      "context_manipulation": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0,
+        "interception_rate": 0.0
+      },
+      "mid_session_hijack": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0,
+        "interception_rate": 0.0
+      },
+      "token_replay": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0,
+        "interception_rate": 0.0
+      }
+    },
+    "OAuth 2.0 (toy)": {
+      "legitimate_sessions": {
+        "trials": 20,
+        "succeeded": 20,
+        "false_positive_rate": 0.0
+      },
+      "mitm_no_cert": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      },
+      "cert_spoofing": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      },
+      "context_manipulation": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0,
+        "interception_rate": 0.0
+      },
+      "mid_session_hijack": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0,
+        "interception_rate": 0.0
+      },
+      "token_replay": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0,
+        "interception_rate": 0.0
+      }
+    },
+    "Static allowlist": {
+      "legitimate_sessions": {
+        "trials": 20,
+        "succeeded": 20,
+        "false_positive_rate": 0.0
+      },
+      "mitm_no_cert": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      },
+      "cert_spoofing": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20,
+        "interception_rate": 1.0
+      },
+      "context_manipulation": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0,
+        "interception_rate": 0.0
+      },
+      "mid_session_hijack": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0,
+        "interception_rate": 0.0
+      },
+      "token_replay": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0,
+        "interception_rate": 0.0
+      }
+    }
+  },
+  "ztcomm_audit_log": {
+    "entries_written_this_run": 360,
+    "chain_verified": true,
+    "chain_message": "ok"
+  }
+}

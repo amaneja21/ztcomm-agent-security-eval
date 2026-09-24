@@ -32,15 +32,23 @@ Full write-up: **[paper link goes here once it's posted]**
   (bearer token with a TTL, no semantic check), `allowlist.py`
   (hardcoded certificate allowlist, no semantic check).
 
-- **`attacks/`** — not built yet. Planned: man-in-the-middle injection,
-  certificate spoofing, context manipulation, mid-session hijack, and
-  token replay, run against ZT-COMM and each baseline.
+- **`attacks/`** — five real attack clients, run over the same real
+  mTLS wire protocol as everything else: MITM with no certificate,
+  certificate spoofing, context manipulation (declare one operation,
+  attempt another), mid-session hijack (replay a captured session_id
+  and token from a still-open connection on a brand new one), and
+  token replay (reuse credentials from a session that already closed).
+  Each one is a real client doing something a well-behaved agent
+  wouldn't, against a real running server.
 
-- **`evaluation/`** — real audit log output from test runs, plus
-  `scale_test.py`, which issues 100 real agent identities across three
-  simulated domains, fires all 100 sessions at a live server
-  concurrently, and reports real latency and audit-integrity numbers
-  from that run in `scale_test_summary.json`.
+- **`evaluation/`** — real audit log output from test runs, plus two
+  runners: `scale_test.py`, which issues 100 real agent identities
+  across three simulated domains and fires all 100 sessions at a live
+  server concurrently (`scale_test_summary.json`), and
+  `run_full_evaluation.py`, which runs the five attacks above plus a
+  batch of ordinary legitimate sessions against ZT-COMM and each of
+  the three baselines, and reports real interception and false
+  positive rates (`full_evaluation_summary.json`).
 
 ## Quick start
 
@@ -82,14 +90,34 @@ These are the first real numbers this project has, and they are not
 yet a fair comparison against the baselines or against any attack
 condition, that's what steps 7 and 8 are for.
 
-Not yet built: the five attack simulations, and the full evaluation
-run across all four approaches (ZT-COMM plus the three baselines) at
-the same 100-pair scale with real computed metrics.
+Also done: the five attack simulations and a full evaluation run
+across all four approaches, real clients against real servers, 20
+trials per condition. The results are consistent and match the
+argument the paper makes: ZT-COMM intercepted all five attack types
+100% of the time with a 0% false positive rate on legitimate
+sessions. Every baseline caught the two attacks that fail at the TLS
+handshake itself, no certificate or no valid signature, since that
+check happens before any of the four approaches even differ. But
+every baseline let all three semantic attacks straight through,
+100% of the time: an allowed identity declaring one operation and
+then doing another, a captured session_id and token replayed from a
+second connection while the original was still open, and the same
+replay after the original session had already closed cleanly. None
+of the three baselines look past "is this a known, currently valid
+connection," so once that check passes, nothing stops a connection
+from doing something it never said it would. Full numbers are in
+`evaluation/logs/full_evaluation_summary.json`.
 
-The paper's evaluation section is being rewritten to match whatever
-this harness actually produces, at whatever scale it actually runs.
-It does not yet match the numbers in earlier drafts of the paper, and
-won't be finalized until real results exist here.
+This is a small run, 20 trials per condition on one machine, not the
+tri-cloud, 500-agent, statistically-tested evaluation described in
+earlier paper drafts. It doesn't need to match those numbers. It
+demonstrates the same underlying claim, semantic context checking
+catches what transport-layer and identity-only checks miss, with
+real code and real results at a scale that's honest about what's
+actually been run so far.
+
+The paper's evaluation section is being rewritten to match what this
+harness actually produced, at the scale it actually ran.
 
 ## Citing this work
 
