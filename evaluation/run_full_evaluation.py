@@ -28,9 +28,9 @@ SUMMARY = LOG_DIR / "full_evaluation_summary.json"
 AUDIT = LOG_DIR / "ztcomm_audit.jsonl"
 
 
-def legit_trial(port, dpop):
+def legit_trial(system):
     try:
-        s = Session(port, VICTIM, dpop)
+        s = Session(system, VICTIM)
         s.open(READ_CTX)
         ok = accepted(s.send("read", "config", "lookup app.yaml"))
         ok = ok and accepted(s.send("read", "config", "lookup db.yaml"))
@@ -41,14 +41,13 @@ def legit_trial(port, dpop):
 
 
 def evaluate(system, n):
-    dpop = system.get("dpop", False)
     proc, log = start(system)
     out = {}
     try:
-        fp = sum(1 for _ in range(n) if not legit_trial(system["port"], dpop))
+        fp = sum(1 for _ in range(n) if not legit_trial(system))
         out["legitimate_sessions"] = {"trials": n, "false_positives": fp}
         for name, fn in ATTACKS.items():
-            through = sum(1 for _ in range(n) if fn(system["port"], dpop))
+            through = sum(1 for _ in range(n) if fn(system))
             out[name] = {"trials": n, "got_through": through, "intercepted": n - through}
     finally:
         stop(proc, log)

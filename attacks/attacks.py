@@ -1,75 +1,85 @@
 """
-Attack clients, run against ZT-COMM and every baseline over the same
-real mTLS 1.3 wire protocol. Each function returns True if the attack
-got through (bad for the defender) and False if it was blocked.
+Attack clients, run against every system over the same real mTLS 1.3
+wire protocol. Each function takes the system under test and returns True
+if the attack got through (bad for the defender), False if it was blocked.
 
-Threat model (see the paper, Section III):
-  A1  Network attacker with no valid certificate.          -> attacks 1, 2
-  A2  Credential thief: a process that has captured another
-      session's identifiers and tokens (from a log, a memory dump,
-      or a compromised sidecar) and presents them on a NEW
-      connection. Two variants:
-        same identity   the thief can also authenticate as the
-                        victim's identity (e.g. it runs on the same
-                        compromised host and can use its certificate),
-                        but does not have the victim session's state
-                        or ephemeral keys
-        cross identity  the thief is a different registered peer
-                        (agent_c) using its own valid certificate      -> attacks 5-8
-  A3  Hijacked or prompt-injected agent: a legitimate agent whose
-      behavior is turned mid-session; it opens honestly and then
-      tries something it never declared.                         -> attack 3
-  A4  Malicious agent at session start: declares more than its
-      role allows, then acts consistently with that declaration. -> attack 4
-  A5  Adaptive in-scope attacker: a malicious agent that declares
-      honestly, stays inside both its role and its declaration, and
-      misuses data it is allowed to read. Out of scope for every
-      system here, included so the limit is measured, not assumed. -> attack 9
+Threat model (paper, Section III):
+  A1  Network attacker without a valid certificate                attacks 1-2
+  A2  Credential thief that presents captured session identifiers,
+      tokens or whole messages on a NEW connection:
+        other identity: a different registered agent (agent_c) with
+          its own valid certificate                               attacks 6-7
+        same identity, delegated session: a process that can
+          authenticate as the victim agent (e.g. on the same
+          compromised host) steals a session that carries a
+          user's delegated authority, which the agent's own
+          identity cannot obtain                                  attacks 8-9
+      A same-identity thief stealing an ordinary session gains
+      nothing: it could open an equivalent session itself. So the
+      same-identity variants here target delegated sessions only.
+  A3  Hijacked agent: opens honestly, then attempts an operation
+      it did not declare                                          attack 3
+  A4  Over-reaching agent: declares more than its role allows, or
+      presents a forged user grant                                attacks 4-5
+  A5  In-scope adversary: declares honestly, stays within role and
+      declaration, and misuses data it may read. Out of scope for
+      every system; measured so the limit is shown, not assumed.  attack 10
 """
 
 import sys
 from pathlib import Path
 
+from cryptography.hazmat.primitives.asymmetric import ec
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from agents.client import Session, client_context, accepted  # noqa: E402
 from attacks.forge import forge_self_signed  # noqa: E402
+from ztcomm.policy_store import issue_user_grant  # noqa: E402
 
 VICTIM = "agent_a"
 INSIDER = "agent_c"
+USER = "alice"
 READ_CTX = {"task": "config-lookup", "operations": ["read"], "data_types": ["config"]}
+DELEGATED_CTX = {"task": "update-ticket-for-alice", "operations": ["write"], "data_types": ["ticket"]}
 
 
 def _safe(fn):
-    def wrapped(port, dpop=False):
+    def wrapped(system):
         try:
-            return bool(fn(port, dpop))
-        except (OSError, ValueError) as e:  # ssl.SSLError is an OSError
+            return bool(fn(system))
+        except (OSError, ValueError):  # ssl.SSLError is an OSError
             return False
     wrapped.__name__ = fn.__name__
     return wrapped
 
 
-@_safe
-def attack_mitm_no_cert(port, dpop):
-    s = Session(port, identity=None, dpop=dpop, tls_context=client_context())
-    ack = s.open(READ_CTX)
-    s.shutdown()
+def _opened(ack):
     return ack.get("type") == "session_ack"
 
 
 @_safe
-def attack_cert_spoofing(port, dpop):
+def attack_mitm_no_cert(system):
+    s = Session({**system, "oauth": False}, identity=None, tls_context=client_context())
+    ok = _opened(s.open(READ_CTX))
+    s.shutdown()
+    return ok
+
+
+@_safe
+def attack_cert_spoofing(system):
     key, cert = forge_self_signed(VICTIM)
-    s = Session(port, identity=None, dpop=dpop, tls_context=client_context(cert_path=cert, key_path=key))
-    ack = s.open(READ_CTX)
+    s = Session({**system, "oauth": False}, identity=None,
+                tls_context=client_context(cert_path=cert, key_path=key))
+    ok = _opened(s.open(READ_CTX))
     s.shutdown()
-    return ack.get("type") == "session_ack"
+    return ok
 
 
 @_safe
-def attack_context_manipulation(port, dpop):
-    s = Session(port, VICTIM, dpop)
-    s.open(READ_CTX)
+def attack_context_manipulation(system):
+    s = Session(system, VICTIM)
+    if not _opened(s.open(READ_CTX)):
+        return False
     ok = accepted(s.send("read", "config", "lookup app.yaml"))
     # Declared a read-only config lookup; now tries to modify a credential.
     ok = ok and accepted(s.send("write", "credentials", "rotate-secret"))
@@ -78,68 +88,85 @@ def attack_context_manipulation(port, dpop):
 
 
 @_safe
-def attack_over_declaration(port, dpop):
-    s = Session(port, VICTIM, dpop)
-    ack = s.open({"task": "maintenance", "operations": ["read", "write"],
-                  "data_types": ["config", "credentials"]})
-    if ack.get("type") != "session_ack":
+def attack_over_declaration(system):
+    s = Session(system, VICTIM)
+    if not _opened(s.open({"task": "maintenance", "operations": ["write"], "data_types": ["credentials"]})):
         s.shutdown()
         return False
-    # Acts exactly as declared, so a declaration-only check sees no mismatch.
-    ok = accepted(s.send("write", "credentials", "rotate-secret"))
+    ok = accepted(s.send("write", "credentials", "rotate-secret"))  # consistent with its declaration
     s.shutdown()
     return ok
 
 
-def _hijack(port, dpop, thief):
-    victim = Session(port, VICTIM, dpop)
-    victim.open(READ_CTX)
-    victim.send("read", "config", "lookup app.yaml")
-    # Victim connection stays open: this is a genuinely live session.
-    attacker = Session(port, thief, dpop)  # new connection, own ephemeral key if DPoP
-    attacker.carry = dict(victim.carry)     # stolen identifiers/tokens
-    ok = accepted(attacker.send("read", "config", "lookup secrets.yaml"))
+@_safe
+def attack_forged_grant(system):
+    forged = issue_user_grant(USER, VICTIM, ["write"], ["ticket"], key=ec.generate_private_key(ec.SECP256R1()))
+    s = Session(system, VICTIM)
+    if not _opened(s.open(DELEGATED_CTX, user_grant=forged)):
+        s.shutdown()
+        return False
+    ok = accepted(s.send("write", "ticket", "close ticket 4411"))
+    s.shutdown()
+    return ok
+
+
+def _victim(system, delegated):
+    v = Session(system, VICTIM)
+    if delegated:
+        v.open(DELEGATED_CTX, user_grant=issue_user_grant(USER, VICTIM, ["write"], ["ticket"]))
+        v.send("write", "ticket", "add note to ticket 4411")
+    else:
+        v.open(READ_CTX)
+        v.send("read", "config", "lookup app.yaml")
+    return v
+
+
+def _hijack(system, thief, delegated):
+    victim = _victim(system, delegated)  # stays open: a genuinely live session
+    attacker = Session(system, thief)     # new connection; own DPoP key if the system uses DPoP
+    attacker.carry = dict(victim.carry)   # stolen identifiers and tokens
+    op, dt = ("write", "ticket") if delegated else ("read", "config")
+    ok = accepted(attacker.send(op, dt, "attacker request"))
     attacker.shutdown()
     victim.close()
     return ok
 
 
-def _replay(port, dpop, thief):
-    victim = Session(port, VICTIM, dpop)
-    victim.open(READ_CTX)
-    victim.send("read", "config", "lookup app.yaml")
+def _replay(system, thief, delegated):
+    victim = _victim(system, delegated)
     victim.close()
-    captured = victim.sent[-1]               # exact bytes-equivalent message, proof included
-    attacker = Session(port, thief, dpop)
+    captured = victim.sent[-1]            # the exact message, DPoP proof included
+    attacker = Session(system, thief)
     ok = accepted(attacker.send_raw(captured))
     attacker.shutdown()
     return ok
 
 
 @_safe
-def attack_hijack_same_identity(port, dpop):
-    return _hijack(port, dpop, VICTIM)
+def attack_hijack_other_identity(system):
+    return _hijack(system, INSIDER, delegated=False)
 
 
 @_safe
-def attack_hijack_cross_identity(port, dpop):
-    return _hijack(port, dpop, INSIDER)
+def attack_replay_other_identity(system):
+    return _replay(system, INSIDER, delegated=False)
 
 
 @_safe
-def attack_replay_same_identity(port, dpop):
-    return _replay(port, dpop, VICTIM)
+def attack_hijack_delegated(system):
+    return _hijack(system, VICTIM, delegated=True)
 
 
 @_safe
-def attack_replay_cross_identity(port, dpop):
-    return _replay(port, dpop, INSIDER)
+def attack_replay_delegated(system):
+    return _replay(system, VICTIM, delegated=True)
 
 
 @_safe
-def attack_in_scope_misuse(port, dpop):
-    s = Session(port, VICTIM, dpop)
-    s.open(READ_CTX)
+def attack_in_scope_misuse(system):
+    s = Session(system, VICTIM)
+    if not _opened(s.open(READ_CTX)):
+        return False
     ok = True
     for key in ("db/password", "api/keys", "sso/client_secret", "backup/creds", "vault/token"):
         ok = ok and accepted(s.send("read", "config", f"lookup {key}"))
@@ -152,13 +179,10 @@ ATTACKS = {
     "cert_spoofing": attack_cert_spoofing,
     "context_manipulation": attack_context_manipulation,
     "over_declaration": attack_over_declaration,
-    "hijack_same_identity": attack_hijack_same_identity,
-    "hijack_cross_identity": attack_hijack_cross_identity,
-    "replay_same_identity": attack_replay_same_identity,
-    "replay_cross_identity": attack_replay_cross_identity,
+    "forged_grant": attack_forged_grant,
+    "hijack_other_identity": attack_hijack_other_identity,
+    "replay_other_identity": attack_replay_other_identity,
+    "hijack_delegated": attack_hijack_delegated,
+    "replay_delegated": attack_replay_delegated,
     "in_scope_misuse": attack_in_scope_misuse,
 }
-
-# Connections each attack trial opens (for the server's max_connections).
-CONNS_PER_ATTACK = {k: 1 for k in ATTACKS}
-CONNS_PER_ATTACK.update({k: 2 for k in ATTACKS if k.startswith(("hijack", "replay"))})
