@@ -1,336 +1,723 @@
 {
   "environment": {
     "python": "3.13.18",
-    "platform": "Linux-6.18.44-fc-v470-x86_64-with-glibc2.39",
+    "platform": "Linux-6.18.44-fc-v509-x86_64-with-glibc2.39",
     "cpus": 2,
     "msgs_per_session": 5
   },
   "microbenchmarks_us": {
-    "zt_session_open_us": 17.88,
-    "zt_per_message_check_us": 9.5,
-    "dpop_proof_sign_us_client": 51.13,
-    "dpop_proof_verify_us_server": 222.93,
-    "rar_scope_check_us": 0.09,
-    "audit_serial_log_us": 17.4,
-    "audit_batched_log_us": 1.31,
+    "zt_session_open_us": 14.78,
+    "zt_per_message_check_us": 6.56,
+    "dpop_proof_sign_us_client": 36.11,
+    "dpop_proof_verify_us_server": 173.05,
+    "rar_scope_check_us": 0.08,
+    "access_token_validate_us_first_use": 119.23,
+    "audit_serial_log_us": 16.3,
+    "audit_batched_log_us": 1.09,
     "serial_chain_ok": true,
     "batched_chain_ok": true
   },
   "sequential_ms": {
     "mTLS only": {
-      "n": 30,
-      "median": 4.608,
-      "p95": 5.414,
-      "min": 4.122,
-      "max": 6.105
+      "median_of_runs": 4.315,
+      "min_run": 3.836,
+      "max_run": 4.701,
+      "runs": [
+        3.836,
+        4.315,
+        4.186,
+        4.701,
+        4.323
+      ],
+      "p95_median_of_runs": 5.547,
+      "median": 4.315,
+      "p95": 5.547
     },
     "Static allowlist": {
-      "n": 30,
-      "median": 4.337,
-      "p95": 5.047,
-      "min": 3.995,
-      "max": 5.26
+      "median_of_runs": 4.259,
+      "min_run": 3.757,
+      "max_run": 4.3,
+      "runs": [
+        4.261,
+        4.014,
+        3.757,
+        4.3,
+        4.259
+      ],
+      "p95_median_of_runs": 4.508,
+      "median": 4.259,
+      "p95": 4.508
     },
     "OAuth bearer": {
+      "median_of_runs": 4.092,
+      "min_run": 3.93,
+      "max_run": 4.135,
+      "runs": [
+        3.93,
+        4.092,
+        4.111,
+        4.135,
+        4.088
+      ],
+      "p95_median_of_runs": 4.797,
+      "median": 4.092,
+      "p95": 4.797
+    },
+    "Cert-bound token (RFC 8705)": {
+      "median_of_runs": 4.27,
+      "min_run": 4.123,
+      "max_run": 4.822,
+      "runs": [
+        4.195,
+        4.27,
+        4.822,
+        4.281,
+        4.123
+      ],
+      "p95_median_of_runs": 5.152,
+      "median": 4.27,
+      "p95": 5.152
+    },
+    "DPoP (RFC 9449)": {
+      "median_of_runs": 7.588,
+      "min_run": 7.445,
+      "max_run": 7.913,
+      "runs": [
+        7.913,
+        7.902,
+        7.588,
+        7.56,
+        7.445
+      ],
+      "p95_median_of_runs": 9.318,
+      "median": 7.588,
+      "p95": 9.318
+    },
+    "DPoP + RAR (RFC 9396)": {
+      "median_of_runs": 7.513,
+      "min_run": 7.035,
+      "max_run": 7.904,
+      "runs": [
+        7.513,
+        7.904,
+        7.306,
+        7.035,
+        7.645
+      ],
+      "p95_median_of_runs": 8.743,
+      "median": 7.513,
+      "p95": 8.743
+    },
+    "ZT-COMM": {
+      "median_of_runs": 5.136,
+      "min_run": 4.758,
+      "max_run": 5.661,
+      "runs": [
+        5.391,
+        5.136,
+        4.758,
+        4.832,
+        5.661
+      ],
+      "p95_median_of_runs": 6.429,
+      "median": 5.136,
+      "p95": 6.429
+    }
+  },
+  "token_issuance_ms": {
+    "OAuth bearer": {
       "n": 30,
-      "median": 4.367,
-      "p95": 5.919,
-      "min": 4.095,
-      "max": 6.245
+      "median": 5.768,
+      "p95": 8.809,
+      "min": 4.866,
+      "max": 10.366
     },
     "Cert-bound token (RFC 8705)": {
       "n": 30,
-      "median": 4.488,
-      "p95": 5.249,
-      "min": 4.093,
-      "max": 5.77
+      "median": 6.086,
+      "p95": 8.025,
+      "min": 4.949,
+      "max": 8.887
     },
     "DPoP (RFC 9449)": {
       "n": 30,
-      "median": 8.904,
-      "p95": 9.977,
-      "min": 7.497,
-      "max": 10.204
+      "median": 7.393,
+      "p95": 9.245,
+      "min": 6.022,
+      "max": 9.932
     },
     "DPoP + RAR (RFC 9396)": {
       "n": 30,
-      "median": 7.592,
-      "p95": 8.918,
-      "min": 6.914,
-      "max": 9.425
-    },
-    "ZT-COMM": {
-      "n": 30,
-      "median": 4.9,
-      "p95": 6.179,
-      "min": 4.549,
-      "max": 6.485
+      "median": 6.942,
+      "p95": 9.948,
+      "min": 5.86,
+      "max": 10.498
     }
   },
   "concurrency_ms": {
     "ZT-COMM (serial audit)": {
       "1": {
-        "n": 3,
-        "median": 7.618,
-        "p95": 8.212,
-        "min": 7.106,
-        "max": 8.278,
+        "n": 5,
+        "median": 6.13,
+        "p95": 6.812,
+        "min": 5.767,
+        "max": 6.941,
         "failures": 0,
-        "server_check_us_median": 39.25,
-        "server_audit_us_median": 64.01,
-        "server_audit_us_p95": 154.97,
+        "round_medians": {
+          "median_of_runs": 6.13,
+          "min_run": 5.767,
+          "max_run": 6.941,
+          "runs": [
+            6.941,
+            6.296,
+            6.13,
+            5.842,
+            5.767
+          ]
+        },
+        "server_check_us_median": 22.78,
+        "server_audit_us_median": 38.72,
+        "server_audit_us_p95": 143.48,
         "chain_verified": true
       },
       "10": {
-        "n": 30,
-        "median": 39.24,
-        "p95": 44.323,
-        "min": 24.826,
-        "max": 44.719,
+        "n": 50,
+        "median": 34.751,
+        "p95": 43.861,
+        "min": 24.635,
+        "max": 44.395,
         "failures": 0,
-        "server_check_us_median": 89.13,
-        "server_audit_us_median": 855.35,
-        "server_audit_us_p95": 2240.69,
+        "round_medians": {
+          "median_of_runs": 35.946,
+          "min_run": 31.013,
+          "max_run": 41.979,
+          "runs": [
+            41.979,
+            31.013,
+            35.946,
+            37.961,
+            33.628
+          ]
+        },
+        "server_check_us_median": 71.37,
+        "server_audit_us_median": 1488.08,
+        "server_audit_us_p95": 3436.22,
         "chain_verified": true
       },
       "25": {
-        "n": 75,
-        "median": 88.213,
-        "p95": 114.045,
-        "min": 54.082,
-        "max": 116.156,
+        "n": 125,
+        "median": 88.352,
+        "p95": 104.035,
+        "min": 19.264,
+        "max": 106.368,
         "failures": 0,
-        "server_check_us_median": 77.87,
-        "server_audit_us_median": 4494.96,
-        "server_audit_us_p95": 10194.75,
+        "round_medians": {
+          "median_of_runs": 88.459,
+          "min_run": 79.615,
+          "max_run": 98.969,
+          "runs": [
+            79.615,
+            98.969,
+            88.459,
+            84.181,
+            97.818
+          ]
+        },
+        "server_check_us_median": 62.02,
+        "server_audit_us_median": 5098.82,
+        "server_audit_us_p95": 11348.59,
         "chain_verified": true
       },
       "50": {
-        "n": 150,
-        "median": 173.267,
-        "p95": 189.798,
-        "min": 62.538,
-        "max": 194.779,
+        "n": 250,
+        "median": 176.723,
+        "p95": 215.471,
+        "min": 21.045,
+        "max": 220.389,
         "failures": 0,
-        "server_check_us_median": 61.02,
-        "server_audit_us_median": 9222.1,
-        "server_audit_us_p95": 30548.57,
+        "round_medians": {
+          "median_of_runs": 171.76,
+          "min_run": 169.164,
+          "max_run": 213.09,
+          "runs": [
+            169.164,
+            170.643,
+            213.09,
+            184.806,
+            171.76
+          ]
+        },
+        "server_check_us_median": 78.18,
+        "server_audit_us_median": 10080.77,
+        "server_audit_us_p95": 28313.15,
         "chain_verified": true
       },
       "100": {
-        "n": 300,
-        "median": 355.014,
-        "p95": 377.288,
-        "min": 22.447,
-        "max": 390.423,
+        "n": 500,
+        "median": 349.795,
+        "p95": 377.241,
+        "min": 77.767,
+        "max": 385.58,
         "failures": 0,
-        "server_check_us_median": 77.3,
-        "server_audit_us_median": 21503.59,
-        "server_audit_us_p95": 58273.91,
+        "round_medians": {
+          "median_of_runs": 350.045,
+          "min_run": 327.833,
+          "max_run": 364.915,
+          "runs": [
+            364.915,
+            350.156,
+            349.951,
+            350.045,
+            327.833
+          ]
+        },
+        "server_check_us_median": 62.72,
+        "server_audit_us_median": 22920.15,
+        "server_audit_us_p95": 60198.37,
         "chain_verified": true
       }
     },
     "ZT-COMM (batched audit)": {
       "1": {
-        "n": 3,
-        "median": 5.884,
-        "p95": 6.902,
-        "min": 5.767,
-        "max": 7.015,
+        "n": 5,
+        "median": 6.726,
+        "p95": 7.498,
+        "min": 5.383,
+        "max": 7.51,
         "failures": 0,
-        "server_check_us_median": 28.01,
-        "server_audit_us_median": 3.17,
-        "server_audit_us_p95": 7.73,
+        "round_medians": {
+          "median_of_runs": 6.726,
+          "min_run": 5.383,
+          "max_run": 7.51,
+          "runs": [
+            7.51,
+            6.726,
+            5.383,
+            5.749,
+            7.449
+          ]
+        },
+        "server_check_us_median": 33.15,
+        "server_audit_us_median": 3.82,
+        "server_audit_us_p95": 11.51,
         "chain_verified": true
       },
       "10": {
-        "n": 30,
-        "median": 31.284,
-        "p95": 43.771,
-        "min": 21.566,
-        "max": 45.824,
+        "n": 50,
+        "median": 28.59,
+        "p95": 34.192,
+        "min": 5.849,
+        "max": 37.487,
         "failures": 0,
-        "server_check_us_median": 217.02,
-        "server_audit_us_median": 3.28,
-        "server_audit_us_p95": 6.75,
+        "round_medians": {
+          "median_of_runs": 29.255,
+          "min_run": 22.869,
+          "max_run": 31.88,
+          "runs": [
+            29.255,
+            22.869,
+            31.88,
+            31.797,
+            26.145
+          ]
+        },
+        "server_check_us_median": 32.1,
+        "server_audit_us_median": 2.6,
+        "server_audit_us_p95": 7.54,
         "chain_verified": true
       },
       "25": {
-        "n": 75,
-        "median": 77.819,
-        "p95": 109.716,
-        "min": 14.007,
-        "max": 111.649,
+        "n": 125,
+        "median": 73.703,
+        "p95": 109.689,
+        "min": 23.073,
+        "max": 115.555,
         "failures": 0,
-        "server_check_us_median": 93.57,
-        "server_audit_us_median": 3.43,
-        "server_audit_us_p95": 6.2,
+        "round_medians": {
+          "median_of_runs": 78.611,
+          "min_run": 62.766,
+          "max_run": 107.725,
+          "runs": [
+            107.725,
+            62.766,
+            78.611,
+            66.746,
+            84.023
+          ]
+        },
+        "server_check_us_median": 373.57,
+        "server_audit_us_median": 2.91,
+        "server_audit_us_p95": 7.24,
         "chain_verified": true
       },
       "50": {
-        "n": 150,
-        "median": 148.969,
-        "p95": 176.441,
-        "min": 53.44,
-        "max": 195.331,
+        "n": 250,
+        "median": 146.369,
+        "p95": 184.671,
+        "min": 43.591,
+        "max": 195.12,
         "failures": 0,
-        "server_check_us_median": 1062.32,
-        "server_audit_us_median": 3.12,
-        "server_audit_us_p95": 5.75,
+        "round_medians": {
+          "median_of_runs": 151.215,
+          "min_run": 106.215,
+          "max_run": 174.556,
+          "runs": [
+            129.812,
+            156.489,
+            174.556,
+            106.215,
+            151.215
+          ]
+        },
+        "server_check_us_median": 1339.05,
+        "server_audit_us_median": 2.99,
+        "server_audit_us_p95": 6.01,
         "chain_verified": true
       },
       "100": {
-        "n": 300,
-        "median": 271.943,
-        "p95": 349.518,
-        "min": 22.526,
-        "max": 367.122,
+        "n": 500,
+        "median": 260.818,
+        "p95": 341.538,
+        "min": 59.006,
+        "max": 382.814,
         "failures": 0,
-        "server_check_us_median": 1508.7,
-        "server_audit_us_median": 3.29,
-        "server_audit_us_p95": 5.77,
+        "round_medians": {
+          "median_of_runs": 259.865,
+          "min_run": 236.753,
+          "max_run": 307.844,
+          "runs": [
+            259.865,
+            307.844,
+            260.969,
+            236.753,
+            246.528
+          ]
+        },
+        "server_check_us_median": 1104.91,
+        "server_audit_us_median": 3.18,
+        "server_audit_us_p95": 6.68,
         "chain_verified": true
       }
     },
     "ZT-COMM (no audit)": {
       "1": {
-        "n": 3,
-        "median": 6.398,
-        "p95": 6.848,
-        "min": 6.131,
-        "max": 6.899,
+        "n": 5,
+        "median": 6.402,
+        "p95": 7.081,
+        "min": 5.605,
+        "max": 7.187,
         "failures": 0,
-        "server_check_us_median": 27.15,
-        "server_audit_us_median": 2.05,
-        "server_audit_us_p95": 3.62
+        "round_medians": {
+          "median_of_runs": 6.402,
+          "min_run": 5.605,
+          "max_run": 7.187,
+          "runs": [
+            6.114,
+            6.402,
+            5.605,
+            6.659,
+            7.187
+          ]
+        },
+        "server_check_us_median": 35.37,
+        "server_audit_us_median": 2.11,
+        "server_audit_us_p95": 4.79
       },
       "10": {
-        "n": 30,
-        "median": 25.575,
-        "p95": 31.714,
-        "min": 16.027,
-        "max": 33.535,
+        "n": 50,
+        "median": 27.753,
+        "p95": 38.058,
+        "min": 6.78,
+        "max": 39.63,
         "failures": 0,
-        "server_check_us_median": 28.46,
-        "server_audit_us_median": 1.43,
-        "server_audit_us_p95": 2.95
+        "round_medians": {
+          "median_of_runs": 26.748,
+          "min_run": 26.112,
+          "max_run": 36.54,
+          "runs": [
+            36.54,
+            26.489,
+            26.748,
+            26.112,
+            27.663
+          ]
+        },
+        "server_check_us_median": 55.81,
+        "server_audit_us_median": 1.72,
+        "server_audit_us_p95": 3.39
       },
       "25": {
-        "n": 75,
-        "median": 77.804,
-        "p95": 97.193,
-        "min": 40.961,
-        "max": 100.204,
+        "n": 125,
+        "median": 69.557,
+        "p95": 83.699,
+        "min": 26.792,
+        "max": 86.458,
         "failures": 0,
-        "server_check_us_median": 770.87,
-        "server_audit_us_median": 1.76,
-        "server_audit_us_p95": 3.04
+        "round_medians": {
+          "median_of_runs": 73.117,
+          "min_run": 53.271,
+          "max_run": 76.623,
+          "runs": [
+            73.117,
+            76.623,
+            53.271,
+            70.75,
+            76.346
+          ]
+        },
+        "server_check_us_median": 151.15,
+        "server_audit_us_median": 1.55,
+        "server_audit_us_p95": 3.39
       },
       "50": {
-        "n": 150,
-        "median": 155.088,
-        "p95": 183.537,
-        "min": 54.628,
-        "max": 188.177,
+        "n": 250,
+        "median": 138.885,
+        "p95": 162.064,
+        "min": 37.581,
+        "max": 171.179,
         "failures": 0,
-        "server_check_us_median": 120.43,
-        "server_audit_us_median": 1.78,
-        "server_audit_us_p95": 2.99
+        "round_medians": {
+          "median_of_runs": 138.813,
+          "min_run": 133.521,
+          "max_run": 149.409,
+          "runs": [
+            138.813,
+            149.409,
+            134.656,
+            143.372,
+            133.521
+          ]
+        },
+        "server_check_us_median": 876.16,
+        "server_audit_us_median": 1.59,
+        "server_audit_us_p95": 3.12
       },
       "100": {
-        "n": 300,
-        "median": 280.485,
-        "p95": 346.324,
-        "min": 17.917,
-        "max": 377.743,
+        "n": 500,
+        "median": 265.213,
+        "p95": 356.041,
+        "min": 40.23,
+        "max": 376.592,
         "failures": 0,
-        "server_check_us_median": 328.39,
-        "server_audit_us_median": 1.75,
-        "server_audit_us_p95": 3.03
+        "round_medians": {
+          "median_of_runs": 275.269,
+          "min_run": 234.112,
+          "max_run": 329.947,
+          "runs": [
+            238.975,
+            275.269,
+            329.947,
+            234.112,
+            276.073
+          ]
+        },
+        "server_check_us_median": 954.75,
+        "server_audit_us_median": 1.67,
+        "server_audit_us_p95": 3.28
       }
     },
     "DPoP + RAR (RFC 9396)": {
       "1": {
-        "n": 3,
-        "median": 10.956,
-        "p95": 12.387,
-        "min": 8.544,
-        "max": 12.546,
-        "failures": 0
+        "n": 5,
+        "median": 9.106,
+        "p95": 13.863,
+        "min": 8.619,
+        "max": 14.776,
+        "failures": 0,
+        "round_medians": {
+          "median_of_runs": 9.106,
+          "min_run": 8.619,
+          "max_run": 14.776,
+          "runs": [
+            14.776,
+            9.106,
+            10.209,
+            9.088,
+            8.619
+          ]
+        }
       },
       "10": {
-        "n": 30,
-        "median": 47.318,
-        "p95": 57.729,
-        "min": 32.531,
-        "max": 58.121,
-        "failures": 0
+        "n": 50,
+        "median": 40.156,
+        "p95": 46.846,
+        "min": 16.283,
+        "max": 47.801,
+        "failures": 0,
+        "round_medians": {
+          "median_of_runs": 42.95,
+          "min_run": 37.304,
+          "max_run": 45.136,
+          "runs": [
+            45.136,
+            38.785,
+            37.304,
+            42.95,
+            44.511
+          ]
+        }
       },
       "25": {
-        "n": 75,
-        "median": 114.492,
-        "p95": 143.722,
-        "min": 40.612,
-        "max": 148.518,
-        "failures": 0
+        "n": 125,
+        "median": 97.1,
+        "p95": 119.291,
+        "min": 53.968,
+        "max": 128.605,
+        "failures": 0,
+        "round_medians": {
+          "median_of_runs": 101.248,
+          "min_run": 92.598,
+          "max_run": 114.489,
+          "runs": [
+            114.489,
+            94.24,
+            102.385,
+            92.598,
+            101.248
+          ]
+        }
       },
       "50": {
-        "n": 150,
-        "median": 239.555,
-        "p95": 275.64,
-        "min": 48.353,
-        "max": 279.563,
-        "failures": 0
+        "n": 250,
+        "median": 202.077,
+        "p95": 269.344,
+        "min": 55.976,
+        "max": 282.413,
+        "failures": 0,
+        "round_medians": {
+          "median_of_runs": 193.567,
+          "min_run": 184.296,
+          "max_run": 255.782,
+          "runs": [
+            184.296,
+            193.567,
+            192.707,
+            228.704,
+            255.782
+          ]
+        }
       },
       "100": {
-        "n": 300,
-        "median": 349.805,
-        "p95": 492.302,
-        "min": 154.948,
-        "max": 535.346,
-        "failures": 0
+        "n": 500,
+        "median": 393.417,
+        "p95": 493.537,
+        "min": 28.542,
+        "max": 515.497,
+        "failures": 0,
+        "round_medians": {
+          "median_of_runs": 387.721,
+          "min_run": 319.128,
+          "max_run": 432.171,
+          "runs": [
+            382.902,
+            387.721,
+            432.171,
+            319.128,
+            417.85
+          ]
+        }
       }
     },
     "mTLS only": {
       "1": {
-        "n": 3,
-        "median": 6.724,
-        "p95": 6.876,
-        "min": 6.296,
-        "max": 6.893,
-        "failures": 0
+        "n": 5,
+        "median": 5.607,
+        "p95": 8.176,
+        "min": 5.228,
+        "max": 8.606,
+        "failures": 0,
+        "round_medians": {
+          "median_of_runs": 5.607,
+          "min_run": 5.228,
+          "max_run": 8.606,
+          "runs": [
+            6.459,
+            5.607,
+            5.228,
+            5.319,
+            8.606
+          ]
+        }
       },
       "10": {
-        "n": 30,
-        "median": 22.851,
-        "p95": 35.293,
-        "min": 12.266,
-        "max": 36.099,
-        "failures": 0
+        "n": 50,
+        "median": 19.494,
+        "p95": 26.85,
+        "min": 9.687,
+        "max": 30.406,
+        "failures": 0,
+        "round_medians": {
+          "median_of_runs": 17.987,
+          "min_run": 17.767,
+          "max_run": 26.442,
+          "runs": [
+            17.767,
+            21.715,
+            17.987,
+            17.883,
+            26.442
+          ]
+        }
       },
       "25": {
-        "n": 75,
-        "median": 60.592,
-        "p95": 84.126,
-        "min": 17.814,
-        "max": 86.177,
-        "failures": 0
+        "n": 125,
+        "median": 60.621,
+        "p95": 72.927,
+        "min": 8.711,
+        "max": 75.624,
+        "failures": 0,
+        "round_medians": {
+          "median_of_runs": 60.666,
+          "min_run": 56.839,
+          "max_run": 64.396,
+          "runs": [
+            62.241,
+            60.581,
+            56.839,
+            64.396,
+            60.666
+          ]
+        }
       },
       "50": {
-        "n": 150,
-        "median": 125.003,
-        "p95": 148.723,
-        "min": 27.09,
-        "max": 158.035,
-        "failures": 0
+        "n": 250,
+        "median": 120.776,
+        "p95": 145.096,
+        "min": 34.416,
+        "max": 149.277,
+        "failures": 0,
+        "round_medians": {
+          "median_of_runs": 117.895,
+          "min_run": 115.403,
+          "max_run": 140.246,
+          "runs": [
+            115.403,
+            120.205,
+            117.895,
+            140.246,
+            115.491
+          ]
+        }
       },
       "100": {
-        "n": 300,
-        "median": 246.581,
-        "p95": 284.545,
-        "min": 64.355,
-        "max": 323.161,
-        "failures": 0
+        "n": 500,
+        "median": 233.811,
+        "p95": 275.093,
+        "min": 7.815,
+        "max": 298.69,
+        "failures": 0,
+        "round_medians": {
+          "median_of_runs": 237.353,
+          "min_run": 225.012,
+          "max_run": 246.961,
+          "runs": [
+            226.933,
+            246.961,
+            237.353,
+            225.012,
+            245.223
+          ]
+        }
       }
     }
   }

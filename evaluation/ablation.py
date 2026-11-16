@@ -32,10 +32,10 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from agents.client import Session, DPoPKey, accepted  # noqa: E402
+from agents.client import Session, DPoPKey, accepted, fetch_token, client_context  # noqa: E402
 from baselines import oauth_family  # noqa: E402
 from certs.generate_ca import ensure_ca, issue_cert  # noqa: E402
-from evaluation.systems import SYSTEMS, start  # noqa: E402
+from evaluation.systems import SYSTEMS, start, stop  # noqa: E402
 from ztcomm.audit_log import AuditLogger, BatchedAuditLogger, verify_chain, verify_batched_chain  # noqa: E402
 from ztcomm.context_schema import normalize  # noqa: E402
 from ztcomm.integrity_monitor import IntegrityMonitor  # noqa: E402
@@ -105,6 +105,16 @@ def microbenchmarks():
     def dpop_verify():
         oauth_family.verify_dpop_proof(next(it), "READ", oauth_family.HTU_PREFIX + "config", access)
 
+    # JWT access-token signature check at the resource server (ES256), done
+    # once per token and cached afterwards.
+    from cryptography.hazmat.primitives.asymmetric import ec as _ec
+    import jwt as _jwt
+    ask = _ec.generate_private_key(_ec.SECP256R1())
+    at = _jwt.encode({"iss": "x", "aud": "agent://agent_b", "exp": int(time.time()) + 600}, ask, algorithm="ES256")
+
+    def token_validate():
+        _jwt.decode(at, ask.public_key(), algorithms=["ES256"], audience="agent://agent_b")
+
     rec = {"actions": frozenset(["read"]), "datatypes": frozenset(["config"])}
 
     def rar_check():
@@ -119,6 +129,7 @@ def microbenchmarks():
         "dpop_proof_sign_us_client": bench(dpop_sign, 2000),
         "dpop_proof_verify_us_server": bench(dpop_verify, 2000),
         "rar_scope_check_us": bench(rar_check, 50000),
+        "access_token_validate_us_first_use": bench(token_validate, 2000),
         "audit_serial_log_us": bench(lambda: serial.log("message_allowed", seq=1, operation="read"), 5000),
         "audit_batched_log_us": bench(lambda: batched.log("message_allowed", seq=1, operation="read"), 50000),
     }
@@ -129,10 +140,13 @@ def microbenchmarks():
 
 
 # ------------------------------------------------------------------ parts 2, 3
-def one_session(port, identity, dpop, decl, op, dtype):
+def one_session(system, identity, decl, op, dtype, cred=(None, None)):
+    """cred = (cached access token, its DPoP key) for OAuth baselines: real
+    clients reuse a token for its lifetime, so session latency excludes
+    token issuance, which is measured separately."""
     t = time.perf_counter()
     try:
-        s = Session(port, identity, dpop)
+        s = Session(system, identity, token=cred[0], dpop_key=cred[1])
         if s.open(decl).get("type") != "session_ack":
             return None
         for i in range(MSGS_PER_SESSION):
@@ -146,18 +160,42 @@ def one_session(port, identity, dpop, decl, op, dtype):
     return (time.perf_counter() - t) * 1000
 
 
+RUNS = int(os.environ.get("ABL_RUNS", 5))
+
+
+def across_runs(run_medians):
+    return {"median_of_runs": round(statistics.median(run_medians), 3),
+            "min_run": round(min(run_medians), 3), "max_run": round(max(run_medians), 3),
+            "runs": [round(x, 3) for x in run_medians]}
+
+
 def sequential(n=30):
     decl = {"operations": ["read"], "data_types": ["config"]}
-    out = {}
+    out, issuance = {}, {}
     for s in SYSTEMS:
-        proc, log = start(s)
-        lat = [one_session(s["port"], "agent_a", s.get("dpop", False), decl, "read", "config")
-               for _ in range(n + 3)][3:]  # 3 warm-up sessions dropped
-        proc.terminate(); proc.wait(); log.close()
-        assert all(x is not None for x in lat), s["name"]
-        out[s["name"]] = summarize(lat)
-        print(f"  seq {s['name']:<30} {out[s['name']]}", flush=True)
-    return out
+        run, _ = start(s)
+        cred = (None, None)
+        if s.get("oauth"):
+            times = []
+            for i in range(n + 3):
+                key = DPoPKey() if s.get("dpop") else None
+                t = time.perf_counter()
+                tok, err = fetch_token(s["mode"], "agent_a", key, decl)
+                times.append((time.perf_counter() - t) * 1000)
+                assert err is None, err
+                cred = (tok, key)
+            issuance[s["name"]] = summarize(times[3:])
+        run_meds, run_p95 = [], []
+        for _ in range(RUNS):
+            lat = [one_session(s, "agent_a", decl, "read", "config", cred) for _ in range(n + 3)][3:]
+            assert all(x is not None for x in lat), s["name"]
+            run_meds.append(statistics.median(lat))
+            run_p95.append(pct(lat, 95))
+        stop(run)
+        out[s["name"]] = {**across_runs(run_meds), "p95_median_of_runs": round(statistics.median(run_p95), 3),
+                          "median": round(statistics.median(run_meds), 3), "p95": round(statistics.median(run_p95), 3)}
+        print(f"  seq {s['name']:<30} {out[s['name']]}  issuance={issuance.get(s['name'])}", flush=True)
+    return out, issuance
 
 
 def identities(n=100):
@@ -172,20 +210,20 @@ def identities(n=100):
     return ids
 
 
-def concurrent_round(port, dpop, ids):
+def concurrent_round(system, ids, creds):
     barrier = threading.Barrier(len(ids))
 
     def go(item):
         name, d = item
         barrier.wait()
-        return one_session(port, name, dpop, {"operations": ["read"], "data_types": [f"{d}_record"]},
-                           "read", f"{d}_record")
+        return one_session(system, name, {"operations": ["read"], "data_types": [f"{d}_record"]},
+                           "read", f"{d}_record", creds.get(name, (None, None)))
 
     with ThreadPoolExecutor(max_workers=len(ids)) as ex:
         return list(ex.map(go, ids))
 
 
-def sweep(levels=(1, 10, 25, 50, 100), rounds=3):
+def sweep(levels=(1, 10, 25, 50, 100), rounds=5):
     ids = identities(max(levels))
     configs = [
         ("ZT-COMM (serial audit)", SYS["ZT-COMM"], {"ZTCOMM_AUDIT": "serial"}),
@@ -206,19 +244,29 @@ def sweep(levels=(1, 10, 25, 50, 100), rounds=3):
                 for f in LOG_DIR.glob("ztcomm_audit*.jsonl"):
                     f.unlink()
             # +1 for wait_port's probe connection
-            proc, log = start(system, max_connections=rounds * c + 1, extra_env=env2)
-            lat, failures = [], 0
+            run, _ = start(system, max_connections=rounds * c + 1, extra_env=env2)
+            creds = {}
+            if system.get("oauth"):
+                for name, d in ids[:c]:
+                    key = DPoPKey() if system.get("dpop") else None
+                    tok, err = fetch_token(system["mode"], name, key,
+                                           {"operations": ["read"], "data_types": [f"{d}_record"]})
+                    assert err is None, err
+                    creds[name] = (tok, key)
+            lat, failures, round_meds = [], 0, []
             for _ in range(rounds):
-                r = concurrent_round(system["port"], system.get("dpop", False), ids[:c])
+                r = concurrent_round(system, ids[:c], creds)
                 failures += sum(1 for x in r if x is None)
-                lat += [x for x in r if x is not None]
+                ok = [x for x in r if x is not None]
+                lat += ok
+                round_meds.append(statistics.median(ok))
                 time.sleep(0.2)
             try:
-                proc.wait(timeout=20)
+                run.main.wait(timeout=20)
             except Exception:
-                proc.kill()
-            log.close()
-            entry = {**summarize(lat), "failures": failures}
+                pass
+            stop(run)
+            entry = {**summarize(lat), "failures": failures, "round_medians": across_runs(round_meds)}
             if is_zt and stats_path.exists():
                 st = json.loads(stats_path.read_text())
                 stats_path.unlink()
@@ -244,11 +292,11 @@ def main():
     micro = microbenchmarks()
     print(" ", micro, flush=True)
     print("part 2: sequential sessions", flush=True)
-    seq = sequential()
+    seq, issuance = sequential()
     print("part 3: concurrency sweep", flush=True)
     conc = sweep()
     OUT.write_text(json.dumps({"environment": env, "microbenchmarks_us": micro,
-                               "sequential_ms": seq, "concurrency_ms": conc}, indent=2))
+                               "sequential_ms": seq, "token_issuance_ms": issuance, "concurrency_ms": conc}, indent=2))
     print(f"saved {OUT}")
 
 

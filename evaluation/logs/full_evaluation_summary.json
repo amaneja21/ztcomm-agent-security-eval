@@ -5,10 +5,11 @@
     "cert_spoofing",
     "context_manipulation",
     "over_declaration",
-    "hijack_same_identity",
-    "hijack_cross_identity",
-    "replay_same_identity",
-    "replay_cross_identity",
+    "forged_grant",
+    "hijack_other_identity",
+    "replay_other_identity",
+    "hijack_delegated",
+    "replay_delegated",
     "in_scope_misuse"
   ],
   "results": {
@@ -37,22 +38,27 @@
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_same_identity": {
+      "forged_grant": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_cross_identity": {
+      "hijack_other_identity": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "replay_same_identity": {
+      "replay_other_identity": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "replay_cross_identity": {
+      "hijack_delegated": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0
+      },
+      "replay_delegated": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
@@ -88,22 +94,27 @@
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_same_identity": {
+      "forged_grant": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_cross_identity": {
+      "hijack_other_identity": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "replay_same_identity": {
+      "replay_other_identity": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "replay_cross_identity": {
+      "hijack_delegated": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0
+      },
+      "replay_delegated": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
@@ -139,22 +150,27 @@
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_same_identity": {
+      "forged_grant": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_cross_identity": {
+      "hijack_other_identity": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "replay_same_identity": {
+      "replay_other_identity": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "replay_cross_identity": {
+      "hijack_delegated": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0
+      },
+      "replay_delegated": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
@@ -190,25 +206,30 @@
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_same_identity": {
+      "forged_grant": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_cross_identity": {
+      "hijack_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_same_identity": {
+      "replay_other_identity": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20
+      },
+      "hijack_delegated": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "replay_cross_identity": {
+      "replay_delegated": {
         "trials": 20,
-        "got_through": 0,
-        "intercepted": 20
+        "got_through": 20,
+        "intercepted": 0
       },
       "in_scope_misuse": {
         "trials": 20,
@@ -241,22 +262,27 @@
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_same_identity": {
+      "forged_grant": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0
+      },
+      "hijack_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "hijack_cross_identity": {
+      "replay_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_same_identity": {
+      "hijack_delegated": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_cross_identity": {
+      "replay_delegated": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
@@ -292,22 +318,27 @@
         "got_through": 0,
         "intercepted": 20
       },
-      "hijack_same_identity": {
+      "forged_grant": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "hijack_cross_identity": {
+      "hijack_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_same_identity": {
+      "replay_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_cross_identity": {
+      "hijack_delegated": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20
+      },
+      "replay_delegated": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
@@ -343,22 +374,27 @@
         "got_through": 0,
         "intercepted": 20
       },
-      "hijack_same_identity": {
+      "forged_grant": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "hijack_cross_identity": {
+      "hijack_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_same_identity": {
+      "replay_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_cross_identity": {
+      "hijack_delegated": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20
+      },
+      "replay_delegated": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
@@ -396,22 +432,27 @@
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_same_identity": {
+      "forged_grant": {
+        "trials": 20,
+        "got_through": 20,
+        "intercepted": 0
+      },
+      "hijack_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "hijack_cross_identity": {
+      "replay_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_same_identity": {
+      "hijack_delegated": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_cross_identity": {
+      "replay_delegated": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
@@ -447,22 +488,27 @@
         "got_through": 0,
         "intercepted": 20
       },
-      "hijack_same_identity": {
+      "forged_grant": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "hijack_cross_identity": {
+      "hijack_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_same_identity": {
+      "replay_other_identity": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
       },
-      "replay_cross_identity": {
+      "hijack_delegated": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20
+      },
+      "replay_delegated": {
         "trials": 20,
         "got_through": 0,
         "intercepted": 20
@@ -498,22 +544,27 @@
         "got_through": 0,
         "intercepted": 20
       },
-      "hijack_same_identity": {
+      "forged_grant": {
+        "trials": 20,
+        "got_through": 0,
+        "intercepted": 20
+      },
+      "hijack_other_identity": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "hijack_cross_identity": {
+      "replay_other_identity": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "replay_same_identity": {
+      "hijack_delegated": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
       },
-      "replay_cross_identity": {
+      "replay_delegated": {
         "trials": 20,
         "got_through": 20,
         "intercepted": 0
@@ -526,9 +577,9 @@
     }
   },
   "ztcomm_audit_log": {
-    "entries": 860,
+    "entries": 900,
     "chain_verified": true,
     "message": "ok"
   },
-  "wall_clock_seconds": 12.7
+  "wall_clock_seconds": 18.7
 }

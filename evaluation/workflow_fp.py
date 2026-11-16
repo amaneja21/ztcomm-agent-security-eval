@@ -89,14 +89,14 @@ def build_workflows(n, seed=7):
     return flows
 
 
-def run_flow(port, dpop, flow, narrow=False):
+def run_flow(system, flow, narrow=False):
     if narrow:
         op, dtype, _, _ = flow["msgs"][0]
         decl = {"operation": op, "data_type": dtype}
     else:
         decl = {"task": flow["kind"], **flow["scope"], "max_messages": 32}
     try:
-        s = Session(port, flow["identity"], dpop)
+        s = Session(system, flow["identity"])
         if s.open(decl).get("type") != "session_ack":
             s.shutdown()
             return False
@@ -120,10 +120,10 @@ def main():
     for system in SYSTEMS:
         proc, log = start(system)
         try:
-            ok = [run_flow(system["port"], system.get("dpop", False), f) for f in flows]
+            ok = [run_flow(system, f) for f in flows]
             res = {"false_positives": ok.count(False), "workflows": len(flows)}
             if system["name"] == "ZT-COMM":
-                narrow = [run_flow(system["port"], False, f, narrow=True) for f in flows]
+                narrow = [run_flow(system, f, narrow=True) for f in flows]
                 res["narrow_declaration_blocked"] = narrow.count(False)
         finally:
             stop(proc, log)
