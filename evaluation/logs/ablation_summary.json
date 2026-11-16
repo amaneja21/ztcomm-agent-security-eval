@@ -1,0 +1,337 @@
+{
+  "environment": {
+    "python": "3.13.18",
+    "platform": "Linux-6.18.44-fc-v470-x86_64-with-glibc2.39",
+    "cpus": 2,
+    "msgs_per_session": 5
+  },
+  "microbenchmarks_us": {
+    "zt_session_open_us": 17.88,
+    "zt_per_message_check_us": 9.5,
+    "dpop_proof_sign_us_client": 51.13,
+    "dpop_proof_verify_us_server": 222.93,
+    "rar_scope_check_us": 0.09,
+    "audit_serial_log_us": 17.4,
+    "audit_batched_log_us": 1.31,
+    "serial_chain_ok": true,
+    "batched_chain_ok": true
+  },
+  "sequential_ms": {
+    "mTLS only": {
+      "n": 30,
+      "median": 4.608,
+      "p95": 5.414,
+      "min": 4.122,
+      "max": 6.105
+    },
+    "Static allowlist": {
+      "n": 30,
+      "median": 4.337,
+      "p95": 5.047,
+      "min": 3.995,
+      "max": 5.26
+    },
+    "OAuth bearer": {
+      "n": 30,
+      "median": 4.367,
+      "p95": 5.919,
+      "min": 4.095,
+      "max": 6.245
+    },
+    "Cert-bound token (RFC 8705)": {
+      "n": 30,
+      "median": 4.488,
+      "p95": 5.249,
+      "min": 4.093,
+      "max": 5.77
+    },
+    "DPoP (RFC 9449)": {
+      "n": 30,
+      "median": 8.904,
+      "p95": 9.977,
+      "min": 7.497,
+      "max": 10.204
+    },
+    "DPoP + RAR (RFC 9396)": {
+      "n": 30,
+      "median": 7.592,
+      "p95": 8.918,
+      "min": 6.914,
+      "max": 9.425
+    },
+    "ZT-COMM": {
+      "n": 30,
+      "median": 4.9,
+      "p95": 6.179,
+      "min": 4.549,
+      "max": 6.485
+    }
+  },
+  "concurrency_ms": {
+    "ZT-COMM (serial audit)": {
+      "1": {
+        "n": 3,
+        "median": 7.618,
+        "p95": 8.212,
+        "min": 7.106,
+        "max": 8.278,
+        "failures": 0,
+        "server_check_us_median": 39.25,
+        "server_audit_us_median": 64.01,
+        "server_audit_us_p95": 154.97,
+        "chain_verified": true
+      },
+      "10": {
+        "n": 30,
+        "median": 39.24,
+        "p95": 44.323,
+        "min": 24.826,
+        "max": 44.719,
+        "failures": 0,
+        "server_check_us_median": 89.13,
+        "server_audit_us_median": 855.35,
+        "server_audit_us_p95": 2240.69,
+        "chain_verified": true
+      },
+      "25": {
+        "n": 75,
+        "median": 88.213,
+        "p95": 114.045,
+        "min": 54.082,
+        "max": 116.156,
+        "failures": 0,
+        "server_check_us_median": 77.87,
+        "server_audit_us_median": 4494.96,
+        "server_audit_us_p95": 10194.75,
+        "chain_verified": true
+      },
+      "50": {
+        "n": 150,
+        "median": 173.267,
+        "p95": 189.798,
+        "min": 62.538,
+        "max": 194.779,
+        "failures": 0,
+        "server_check_us_median": 61.02,
+        "server_audit_us_median": 9222.1,
+        "server_audit_us_p95": 30548.57,
+        "chain_verified": true
+      },
+      "100": {
+        "n": 300,
+        "median": 355.014,
+        "p95": 377.288,
+        "min": 22.447,
+        "max": 390.423,
+        "failures": 0,
+        "server_check_us_median": 77.3,
+        "server_audit_us_median": 21503.59,
+        "server_audit_us_p95": 58273.91,
+        "chain_verified": true
+      }
+    },
+    "ZT-COMM (batched audit)": {
+      "1": {
+        "n": 3,
+        "median": 5.884,
+        "p95": 6.902,
+        "min": 5.767,
+        "max": 7.015,
+        "failures": 0,
+        "server_check_us_median": 28.01,
+        "server_audit_us_median": 3.17,
+        "server_audit_us_p95": 7.73,
+        "chain_verified": true
+      },
+      "10": {
+        "n": 30,
+        "median": 31.284,
+        "p95": 43.771,
+        "min": 21.566,
+        "max": 45.824,
+        "failures": 0,
+        "server_check_us_median": 217.02,
+        "server_audit_us_median": 3.28,
+        "server_audit_us_p95": 6.75,
+        "chain_verified": true
+      },
+      "25": {
+        "n": 75,
+        "median": 77.819,
+        "p95": 109.716,
+        "min": 14.007,
+        "max": 111.649,
+        "failures": 0,
+        "server_check_us_median": 93.57,
+        "server_audit_us_median": 3.43,
+        "server_audit_us_p95": 6.2,
+        "chain_verified": true
+      },
+      "50": {
+        "n": 150,
+        "median": 148.969,
+        "p95": 176.441,
+        "min": 53.44,
+        "max": 195.331,
+        "failures": 0,
+        "server_check_us_median": 1062.32,
+        "server_audit_us_median": 3.12,
+        "server_audit_us_p95": 5.75,
+        "chain_verified": true
+      },
+      "100": {
+        "n": 300,
+        "median": 271.943,
+        "p95": 349.518,
+        "min": 22.526,
+        "max": 367.122,
+        "failures": 0,
+        "server_check_us_median": 1508.7,
+        "server_audit_us_median": 3.29,
+        "server_audit_us_p95": 5.77,
+        "chain_verified": true
+      }
+    },
+    "ZT-COMM (no audit)": {
+      "1": {
+        "n": 3,
+        "median": 6.398,
+        "p95": 6.848,
+        "min": 6.131,
+        "max": 6.899,
+        "failures": 0,
+        "server_check_us_median": 27.15,
+        "server_audit_us_median": 2.05,
+        "server_audit_us_p95": 3.62
+      },
+      "10": {
+        "n": 30,
+        "median": 25.575,
+        "p95": 31.714,
+        "min": 16.027,
+        "max": 33.535,
+        "failures": 0,
+        "server_check_us_median": 28.46,
+        "server_audit_us_median": 1.43,
+        "server_audit_us_p95": 2.95
+      },
+      "25": {
+        "n": 75,
+        "median": 77.804,
+        "p95": 97.193,
+        "min": 40.961,
+        "max": 100.204,
+        "failures": 0,
+        "server_check_us_median": 770.87,
+        "server_audit_us_median": 1.76,
+        "server_audit_us_p95": 3.04
+      },
+      "50": {
+        "n": 150,
+        "median": 155.088,
+        "p95": 183.537,
+        "min": 54.628,
+        "max": 188.177,
+        "failures": 0,
+        "server_check_us_median": 120.43,
+        "server_audit_us_median": 1.78,
+        "server_audit_us_p95": 2.99
+      },
+      "100": {
+        "n": 300,
+        "median": 280.485,
+        "p95": 346.324,
+        "min": 17.917,
+        "max": 377.743,
+        "failures": 0,
+        "server_check_us_median": 328.39,
+        "server_audit_us_median": 1.75,
+        "server_audit_us_p95": 3.03
+      }
+    },
+    "DPoP + RAR (RFC 9396)": {
+      "1": {
+        "n": 3,
+        "median": 10.956,
+        "p95": 12.387,
+        "min": 8.544,
+        "max": 12.546,
+        "failures": 0
+      },
+      "10": {
+        "n": 30,
+        "median": 47.318,
+        "p95": 57.729,
+        "min": 32.531,
+        "max": 58.121,
+        "failures": 0
+      },
+      "25": {
+        "n": 75,
+        "median": 114.492,
+        "p95": 143.722,
+        "min": 40.612,
+        "max": 148.518,
+        "failures": 0
+      },
+      "50": {
+        "n": 150,
+        "median": 239.555,
+        "p95": 275.64,
+        "min": 48.353,
+        "max": 279.563,
+        "failures": 0
+      },
+      "100": {
+        "n": 300,
+        "median": 349.805,
+        "p95": 492.302,
+        "min": 154.948,
+        "max": 535.346,
+        "failures": 0
+      }
+    },
+    "mTLS only": {
+      "1": {
+        "n": 3,
+        "median": 6.724,
+        "p95": 6.876,
+        "min": 6.296,
+        "max": 6.893,
+        "failures": 0
+      },
+      "10": {
+        "n": 30,
+        "median": 22.851,
+        "p95": 35.293,
+        "min": 12.266,
+        "max": 36.099,
+        "failures": 0
+      },
+      "25": {
+        "n": 75,
+        "median": 60.592,
+        "p95": 84.126,
+        "min": 17.814,
+        "max": 86.177,
+        "failures": 0
+      },
+      "50": {
+        "n": 150,
+        "median": 125.003,
+        "p95": 148.723,
+        "min": 27.09,
+        "max": 158.035,
+        "failures": 0
+      },
+      "100": {
+        "n": 300,
+        "median": 246.581,
+        "p95": 284.545,
+        "min": 64.355,
+        "max": 323.161,
+        "failures": 0
+      }
+    }
+  }
+}

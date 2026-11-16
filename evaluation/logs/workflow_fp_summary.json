@@ -1,0 +1,38 @@
+{
+  "workflows": 60,
+  "per_type": 20,
+  "messages_total": 548,
+  "steps_min": 3,
+  "steps_max": 15,
+  "results": {
+    "mTLS only": {
+      "false_positives": 0,
+      "workflows": 60
+    },
+    "Static allowlist": {
+      "false_positives": 0,
+      "workflows": 60
+    },
+    "OAuth bearer": {
+      "false_positives": 0,
+      "workflows": 60
+    },
+    "Cert-bound token (RFC 8705)": {
+      "false_positives": 0,
+      "workflows": 60
+    },
+    "DPoP (RFC 9449)": {
+      "false_positives": 0,
+      "workflows": 60
+    },
+    "DPoP + RAR (RFC 9396)": {
+      "false_positives": 0,
+      "workflows": 60
+    },
+    "ZT-COMM": {
+      "false_positives": 0,
+      "workflows": 60,
+      "narrow_declaration_blocked": 60
+    }
+  }
+}
