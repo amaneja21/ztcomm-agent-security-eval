@@ -8,3 +8,7 @@ evaluation/logs/*.jsonl
 evaluation/logs/*.log
 attacks/forged/
 architecture-diagram.html
+agent_experiment/results/*mock*
+authz_server/node_modules/
+certs/*.json
+certs/*.jwk
