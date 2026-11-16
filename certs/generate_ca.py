@@ -50,6 +50,11 @@ def ensure_ca():
         .not_valid_before(datetime.datetime.now(datetime.UTC))
         .not_valid_after(datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=30))
         .add_extension(x509.BasicConstraints(ca=True, path_length=None), critical=True)
+        .add_extension(x509.KeyUsage(digital_signature=True, key_cert_sign=True, crl_sign=True,
+                                     content_commitment=False, key_encipherment=False,
+                                     data_encipherment=False, key_agreement=False,
+                                     encipher_only=False, decipher_only=False), critical=True)
+        .add_extension(x509.SubjectKeyIdentifier.from_public_key(ca_key.public_key()), critical=False)
         .sign(ca_key, hashes.SHA256())
     )
 
@@ -82,6 +87,13 @@ def issue_cert(common_name: str):
             x509.SubjectAlternativeName([x509.DNSName("localhost")]),
             critical=False,
         )
+        # Strict X.509 validation (Python 3.13 default contexts, many TLS
+        # stacks) requires key identifiers and an end-entity key usage.
+        .add_extension(x509.SubjectKeyIdentifier.from_public_key(key.public_key()), critical=False)
+        .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()), critical=False)
+        .add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True)
+        .add_extension(x509.ExtendedKeyUsage([x509.oid.ExtendedKeyUsageOID.SERVER_AUTH,
+                                              x509.oid.ExtendedKeyUsageOID.CLIENT_AUTH]), critical=False)
         .sign(ca_key, hashes.SHA256())
     )
 
