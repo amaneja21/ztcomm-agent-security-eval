@@ -85,7 +85,7 @@ def _open_session(conn, peer_cn, opened):
         _record("audit_ns", _timed_log("session_rejected", peer=peer_cn, reason=str(e)))
         return None, str(e)
     if CEILING:
-        ok, info = authorize_declaration(peer_cn, ctx)
+        ok, info = authorize_declaration(peer_cn, ctx, opened.get("user_grant"))
         if not ok:
             _record("audit_ns", _timed_log("declaration_refused", peer=peer_cn, reason=info, context=ctx))
             return None, info

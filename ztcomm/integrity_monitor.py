@@ -9,8 +9,8 @@ the structured fields of the message, never at the payload's content.
     check(message):
         seq += 1
         if seq > ctx.max_messages:                 -> violation (volume)
-        if message.operation not in ctx.operations -> violation (operation)
-        if message.data_type not in ctx.data_types -> violation (data type)
+        if no declared scope contains both message.operation
+           and message.data_type                    -> violation (scope)
         if len(message.payload) > ctx.max_payload  -> violation (size)
         otherwise                                  -> allow
 
@@ -27,6 +27,7 @@ class IntegrityMonitor:
     def __init__(self, ctx: dict):
         # ctx is the normalized, authorized context (see context_schema)
         self.ctx = ctx
+        self.scopes = [(frozenset(sc["operations"]), frozenset(sc["data_types"])) for sc in ctx["scopes"]]
         self.ops = frozenset(ctx["operations"])
         self.types = frozenset(ctx["data_types"])
         self.max_messages = ctx["max_messages"]
@@ -43,11 +44,9 @@ class IntegrityMonitor:
         if self.messages_checked > self.max_messages:
             return self._fail(f"volume exceeded: declared max {self.max_messages}")
         op = message.get("operation")
-        if op not in self.ops:
-            return self._fail(f"operation '{op}' not in declared {sorted(self.ops)}")
         dtype = message.get("data_type")
-        if dtype not in self.types:
-            return self._fail(f"data_type '{dtype}' not in declared {sorted(self.types)}")
+        if not any(op in ops and dtype in types for ops, types in self.scopes):
+            return self._fail(f"'{op}' on '{dtype}' is outside the declared scopes")
         payload = message.get("payload", "")
         size = len(payload) if isinstance(payload, str) else len(json.dumps(payload))
         if size > self.max_payload:
