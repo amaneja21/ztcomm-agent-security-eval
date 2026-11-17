@@ -50,6 +50,18 @@ for _d in ("finance", "ops", "hr"):
 
 IDENTITY_ROLES = {"agent_a": "config-reader", "agent_ops": "ticket-operator", "agent_c": "inventory-reader"}
 
+# Revised policy (ZTCOMM_POLICY=revised), used only to replay the live-agent
+# experiment. With the initial policy, every false positive from Claude
+# Sonnet traced to one policy-authoring choice: the ticket-operator role
+# could not list the inventory, which agents answering a ticket about
+# "every service" naturally do first. The revision adds that one entry.
+# Agent behavior is fixed in the recorded trajectories, so the replay
+# isolates the effect of the policy.
+import os as _os
+POLICY_VARIANT = _os.environ.get("ZTCOMM_POLICY", "initial")
+if POLICY_VARIANT == "revised":
+    ROLES["ticket-operator"]["entries"] = ROLES["ticket-operator"]["entries"] + [(["list"], ["inventory"])]
+
 
 def role_for(identity: str) -> str | None:
     if identity in IDENTITY_ROLES:

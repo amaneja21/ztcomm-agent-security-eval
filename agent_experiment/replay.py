@@ -19,6 +19,7 @@ Usage: python3 agent_experiment/replay.py results/trajectories_<...>.jsonl
 """
 
 import json
+import os
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -28,7 +29,7 @@ sys.path.insert(0, str(ROOT))
 
 from agents.client import Session, accepted  # noqa: E402
 from evaluation.systems import SYSTEMS, start, stop  # noqa: E402
-from ztcomm.policy_store import ROLES, role_for, issue_user_grant  # noqa: E402
+from ztcomm.policy_store import ROLES, role_for, issue_user_grant, export_for_authorization_server  # noqa: E402
 
 ROLE_WIDE = {"name": "ZT-COMM, role-wide declaration", "role_wide": True,
              **{k: v for k, v in next(s for s in SYSTEMS if s["name"] == "ZT-COMM").items() if k != "name"}}
@@ -38,15 +39,26 @@ def declaration_for(system, traj):
     if system.get("role_wide"):
         entries = list(ROLES[role_for(traj["identity"])]["entries"])
         if traj["grant"]:
-            entries.append(tuple(traj["grant"]))
+            entries.append(tuple(grant_scope(traj)))
         return {"task": traj["task"], "scopes": [{"operations": list(o), "data_types": list(t)} for o, t in entries]}
     scopes = [sc for sc in (traj["declaration"] or {}).get("scopes", []) if sc["operations"] and sc["data_types"]]
     return {"task": traj["task"], "scopes": scopes or [{"operations": ["none"], "data_types": ["none"]}]}
 
 
+REVISED = os.environ.get("ZTCOMM_POLICY") == "revised"
+
+
+def grant_scope(traj):
+    """The initial grant let the agent write alice's ticket but not read
+    it; agents read a ticket before adding a note to it. The revised
+    policy grants read and write on the ticket."""
+    ops, types = traj["grant"]
+    return (sorted(set(ops) | {"read"}), types) if REVISED else (ops, types)
+
+
 def replay(system, traj):
     """Returns (blocked_at_index or None, reason)."""
-    grant = issue_user_grant("alice", traj["identity"], *traj["grant"]) if traj["grant"] else None
+    grant = issue_user_grant("alice", traj["identity"], *grant_scope(traj)) if traj["grant"] else None
     s = Session(system, traj["identity"])
     ack = s.open(declaration_for(system, traj), user_grant=grant)
     if ack.get("type") != "session_ack":
@@ -63,6 +75,7 @@ def replay(system, traj):
 
 
 def main():
+    export_for_authorization_server()  # the OAuth authorization server reads the same (possibly revised) roles
     trajs = [json.loads(line) for line in open(sys.argv[1])]
     trajs = [t for t in trajs if not t.get("error")]
     systems = SYSTEMS + [ROLE_WIDE]
@@ -106,9 +119,11 @@ def main():
         ok = all(any(o in x["operations"] and dt in x["data_types"] for x in sc) for o, dt in used)
         decl_quality["exact_or_wider_than_used" if ok else "under_declared"] += 1
 
-    out = Path(sys.argv[1]).with_name(Path(sys.argv[1]).stem.replace("trajectories", "summary") + ".json")
+    tag = "summary_revised" if REVISED else "summary"
+    out = Path(sys.argv[1]).with_name(Path(sys.argv[1]).stem.replace("trajectories", tag) + ".json")
     out.write_text(json.dumps({
         "trajectories": len(trajs), "model": trajs[0]["model"] if trajs else None,
+        "policy": "revised" if REVISED else "initial",
         "model_followed_injection": {k: {"followed": v[0], "of": v[1]} for k, v in model_level.items()},
         "declaration_quality": decl_quality,
         "per_system": {k: dict(v) for k, v in rows.items()},
