@@ -10,7 +10,7 @@ the recorded trajectory is replayed against every defense in step 2
 (replay.py), so all defenses face exactly the same agent behavior.
 
 Providers:
-  anthropic   ANTHROPIC_API_KEY, --model e.g. claude-sonnet-4-5
+  anthropic   ANTHROPIC_API_KEY, --model e.g. claude-sonnet-5-5
   openai      OPENAI_API_KEY (+ --base-url for any OpenAI-compatible server,
               e.g. a local Ollama at http://localhost:11434/v1)
   mock        scripted agent, no API; ONLY for testing the pipeline,
@@ -185,6 +185,12 @@ def main():
     a = ap.parse_args()
     agent = {"anthropic": lambda: Anthropic(a.model), "openai": lambda: OpenAICompat(a.model, a.base_url),
              "mock": lambda: Mock()}[a.provider]()
+    if a.provider == "anthropic":
+        try:  # fail fast on a bad key or model name instead of recording 120 errors
+            agent.client.messages.create(model=a.model, max_tokens=5, messages=[{"role": "user", "content": "ok"}])
+        except Exception as e:
+            print(f"PREFLIGHT FAILED for {a.model}: {type(e).__name__}: {e}")
+            sys.exit(2)
     OUT_DIR.mkdir(exist_ok=True)
     out = OUT_DIR / f"trajectories_{a.provider}_{a.model.replace('/', '_')}.jsonl"
     with open(out, "w") as f:

@@ -13,8 +13,8 @@ for a in agent_a agent_b agent_c agent_ops authz_server; do python3 certs/genera
 python3 ztcomm/policy_store.py
 
 export ANTHROPIC_API_KEY=...                       # your key
-python3 agent_experiment/run_agents.py --provider anthropic --model claude-sonnet-4-5 --reps 5
-python3 agent_experiment/replay.py agent_experiment/results/trajectories_anthropic_claude-sonnet-4-5.jsonl
+python3 agent_experiment/run_agents.py --provider anthropic --model claude-sonnet-5-5 --reps 5
+python3 agent_experiment/replay.py agent_experiment/results/trajectories_anthropic_claude-sonnet-5-5.jsonl
 ```
 
 Any OpenAI-compatible model works too, including a local one:
