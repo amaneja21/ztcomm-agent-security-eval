@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this testbed, please cite the paper and this repository."
+title: "ZT-COMM agent-channel security evaluation"
+authors:
+  - family-names: Aneja
+    given-names: Amit
+    email: amit.aneja@ieee.org
+repository-code: "https://github.com/amaneja21/ztcomm-agent-security-eval"
+license: MIT
+version: "1.0.0"
+date-released: "2026-11-20"
+preferred-citation:
+  type: article
+  title: "What Does It Take to Secure Agent-to-Agent Channels? An Empirical Comparison of Transport, Token, and Context-Binding Defenses"
+  authors:
+    - family-names: Aneja
+      given-names: Amit
+  year: 2026
+  status: submitted

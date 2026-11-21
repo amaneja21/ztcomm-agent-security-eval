@@ -6,6 +6,21 @@ against transport-only, token-based, and sender-constrained OAuth
 baselines. Everything runs locally over real mutual TLS 1.3 connections;
 every number in `evaluation/logs/*_summary.json` comes from a real run.
 
+## Paper
+
+Code and data for *What Does It Take to Secure Agent-to-Agent Channels? An
+Empirical Comparison of Transport, Token, and Context-Binding Defenses*
+(A. Aneja, 2026, under review). Every number in the paper comes from the
+files below.
+
+| In the paper | Produced by | Raw results |
+|---|---|---|
+| Table III, attack interception | `evaluation/run_full_evaluation.py 20` | `evaluation/logs/full_evaluation_summary.json` |
+| Table IV, component ablation | same run | same file, `ablations` |
+| Section VI-C, scripted workflows | `evaluation/workflow_fp.py 20` | `evaluation/logs/workflow_fp_summary.json` |
+| Tables V and VI, Fig. 3, cost and concurrency | `evaluation/ablation.py` | `evaluation/logs/ablation_summary.json` |
+| Table VII, live LLM agents | `agent_experiment/run_agents.py`, then `agent_experiment/replay.py` (and with `ZTCOMM_POLICY=revised`) | `agent_experiment/results/` |
+
 ## What ZT-COMM does
 
 1. **Mutual Authentication Engine**: mTLS 1.3, both sides present
